@@ -1,0 +1,23 @@
+{
+  "name": "qba-subscriber-back-end",
+  "version": "0.1.0",
+  "description": "An AMQP subscriber app back end which serves API calls.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ranuldeepanayake/qba-subscriber-back-end.git"
+  },
+  "author": "Ranul Deepanayake",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ranuldeepanayake/qba-subscriber-back-end/issues"
+  },
+  "homepage": "https://github.com/Ranuldeepanayake/qba-subscriber-back-end#readme",
+  "dependencies": {
+    "amqplib": "^0.10.9",
+    "dotenv": "^17.2.3"
+  }
+}
