@@ -8,9 +8,9 @@ async function getAllQueues() {
   let amqpUrl = `http://${config.AMQP_HOST}:${config.AMQP_PORT}/api/queues`;
 
   try{
-    console.info("Sending request to ", amqpUrl);
+    console.info("Sending request to AMQP server ", amqpUrl);
     const result = await axios.get(amqpUrl, { auth: {username: config.AMQP_USERNAME, password: config.AMQP_PASSWORD }});
-    console.info("Response received from ", amqpUrl);
+    console.info("Response received from AMQP server ", amqpUrl);
     return result.data;
 
   } catch (err) {
@@ -22,17 +22,12 @@ async function getAllQueues() {
 
 // Get stats for a specific queue
 async function getQueue(queueName, vhost = config.AMQP_DEFAULT_VHOST) {
-
-  // const url = `${RABBIT_HOST}/api/queues/%2F/${queueName}`;
-  // const result = await axios.get(url, axiosConfig);
-  // res.json(result.data);
-
   try {
     const amqpUrl = `http://${config.AMQP_HOST}:${config.AMQP_PORT}/api/queues/${encodeURIComponent(vhost)}/${queueName}`;
 
-    console.info("Sending request to ", amqpUrl);
+    console.info("Sending request to AMQP server ", amqpUrl);
     const result = await axios.get(amqpUrl, { auth: {username: config.AMQP_USERNAME, password: config.AMQP_PASSWORD }});
-    console.info("Response received from ", amqpUrl);
+    console.info("Response received from AMQP server ", amqpUrl);
     return result.data;
 
   } catch (err) {

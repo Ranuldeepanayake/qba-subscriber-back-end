@@ -23,9 +23,9 @@ server.get("/", (req, res) => {
   res.send("API server is working!");
 });
 
-server.get("/api/queue/all", async (req, res) => {
+server.get("/api/queue", async (req, res) => {
   try{
-    console.log("API request received by ", req.ip);
+    console.log("API request ", req.url, " sent by ", req.ip);
     let result = await getAllQueues();
     res.send(result);
 
@@ -37,11 +37,9 @@ server.get("/api/queue/all", async (req, res) => {
 });
 
 server.get("/api/queue/:name", async (req, res) => {
-  const queueName = req.params.name;
-  console.log
-
   try{
-    console.log("API request ", queueName, " received by ", req.ip);
+    const queueName = req.params.name;
+    console.log("API request ", req.url, " sent by ", req.ip);
     let result = await getQueue(queueName, config.AMQP_DEFAULT_VHOST);
     res.send(result);
 
