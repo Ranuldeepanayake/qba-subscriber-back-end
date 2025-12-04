@@ -8,23 +8,33 @@ const config = require("./config");
 
 class AmqpSubscriber {
 
-  AMQP_URL = `amqp://${config.AMQP_USERNAME}:${config.AMQP_PASSWORD}@${config.AMQP_HOST}:${config.AMQP_MESSAGE_PORT}`;
+  AMQP_URL;
+  AMQP_LOG_URL; //For logging without exposing the password.
+  AMQP_HOST;
   AMQP_CONNECTION; 
   AMQP_CHANNEL;
-  AMQP_QUEUE;
+  AMQP_QUEUE_NAME;
   AMQP_STATUS_OK = false;
 
-  AmqpSubscriber(){
+  constructor(host, port, userName, password, queueName){
+    this.AMQP_HOST = host;
+    this.AMQP_PORT = port;
+    this.AMQP_USERNAME = userName;
+    this.AMQP_PASSWORD = password;
+    this.AMQP_QUEUE_NAME = queueName;
 
+    this.AMQP_URL = `amqp://${userName}:${password}@${host}:${port}`;
+    this.AMQP_LOG_URL = `amqp://${userName}:****@${host}:${port}`
   }
 
   async createAmqpConnection(amqpUrl){
     try{
-      console.info("Attempting to connect to the AMPQ server ", this.AMQP_URL);
+      console.info("Connecting to the AMPQ server ", this.AMQP_LOG_URL);
       this.AMQP_CONNECTION = await AMQP.connect(amqpUrl);
-      console.info("Connected to the AMPQ server ", this.AMQP_URL);
+      console.info("Connected to the AMPQ server ", this.AMQP_LOG_URL);
+
     } catch (err) {
-      console.error("Could not connect to the AMQP server! ", err.message);
+      console.error("Failed connecting to the AMQP server", this.AMQP_LOG_URL, err.message);
       //Retry after a wait interval.
       await new Promise(resolve => setTimeout(resolve, 2000));
       await this.createAmqpConnection(amqpUrl);
@@ -33,11 +43,12 @@ class AmqpSubscriber {
 
   async createAmqpChannel(amqpConnection){
     try{
-      console.info("Attempting to create an AMPQ channel...");
+      console.info("Creating an AMPQ channel......");
       this.AMQP_CHANNEL = await amqpConnection.createChannel();
-      console.info("Created an AMPQ channel......");
+      console.info("Successfully created an AMPQ channel");
+      
     } catch (err) {
-      console.error("Could not create an AMPQ channel! ", err.message);
+      console.error("Failed creating an AMPQ channel! ", err.message);
       //Retry after a wait interval.
       await new Promise(resolve => setTimeout(resolve, 2000));
       this.createAmqpChannel(amqpConnection);
@@ -46,7 +57,7 @@ class AmqpSubscriber {
 
   async createAmqpQueue(amqpChannel, queueName){
     try{
-      console.info("Attempting to create an AMPQ queue......");
+      console.info("Creating the AMPQ queue ", queueName);
       /*
       Durable: Queue survives a broker or connection restart but messages are lost. Queue is written to disk (without messages).
       Persistent: Messages in a queue survives a broker restart. Messages are written to disk. Needs a durable queue.
@@ -56,9 +67,10 @@ class AmqpSubscriber {
       Duplicate creation does not create an exception if all properties are the same.
       */
       await amqpChannel.assertQueue(queueName, { durable: true, persistent: false, exclusive: false, autoDelete: false });
-      console.info("Created an AMPQ queue......");
+      console.info("Succesfully created the AMPQ queue", queueName);
+
     } catch (err) {
-      console.error("Could not create an AMPQ queue! ", err.message);
+      console.error("Failed to create the AMPQ queue", queueName, err.message);
       //Retry after a wait interval.
       await new Promise(resolve => setTimeout(resolve, 2000));
       this.createAmqpQueue(amqpChannel, queueName);
@@ -71,10 +83,9 @@ class AmqpSubscriber {
   }
 
   async amqpSetup() {
-    //*******Add another function to clean up failed connections.
     await this.createAmqpConnection(this.AMQP_URL);
     await this.createAmqpChannel(this.AMQP_CONNECTION);
-    await this.createAmqpQueue(this.AMQP_CHANNEL, config.AMQP_DEFAULT_QUEUE_NAME);
+    await this.createAmqpQueue(this.AMQP_CHANNEL, this.AMQP_QUEUE_NAME);
     //Wait for all phases to be successful to set the status flag.
     await this.amqpStatus();
   }
@@ -85,11 +96,11 @@ class AmqpSubscriber {
       await this.amqpSetup();
     }
 
-    console.info("Listening to queue ", config.AMQP_DEFAULT_QUEUE_NAME, " for messages......");
+    console.info("Listening to queue ", this.AMQP_QUEUE_NAME, " for messages......");
 
       try{
           //Skip execution if the connection is being self-healed.
-          this.AMQP_CHANNEL.consume(config.AMQP_DEFAULT_QUEUE_NAME, (msg) => {
+          this.AMQP_CHANNEL.consume(this.AMQP_QUEUE_NAME, (msg) => {
                   console.info("Consumption started......");
                   //If there is a message in the queue.
                   if (msg !== null) {
@@ -101,12 +112,16 @@ class AmqpSubscriber {
           );
 
       } catch (err) {
-          console.error("Error in subscribing to queue! ", err.message);
+          console.error("Failed subscribing to queue! ", err.message);
+          console.info("Closing stale connections......");
 
+          //Set the success flag as unsuccessful.
           this.AMQP_STATUS_OK = false;
+
+          //Cleanup failed connections.
           if (this.AMQP_CHANNEL) await this.AMQP_CHANNEL.close();
           if (this.AMQP_CONNECTION) await this.AMQP_CONNECTION.close();
-          console.log('AMQP resources released. Retrying to subscribe......');
+          console.log('Successfully closed stale connections. Retrying to subscribe......');
           this.subscribeAmqp();
       }
   }

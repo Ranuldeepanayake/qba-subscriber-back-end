@@ -19,6 +19,8 @@ class Config {
     static AMQP_PASSWORD;
     static AMQP_DEFAULT_QUEUE_NAME;
     static AMQP_DEFAULT_VHOST;
+    static AMQP_RETRY_INTERVAL;
+    static WEB_SERVER_PORT;
 
     //Read environment variables from the runtime environment.
     static readEnv(){
@@ -33,7 +35,11 @@ class Config {
             this.AMQP_PASSWORD = process.env.AMQP_PASSWORD || 'ranul@123';
             this.AMQP_DEFAULT_QUEUE_NAME = process.env.AMQP_DEFAULT_QUEUE_NAME || 'QBA_QUEUE_1';
             this.AMQP_DEFAULT_VHOST = process.env.AMQP_DEFAULT_VHOST || '/';
+            this.AMQP_RETRY_INTERVAL = process.env.AMQP_RETRY_INTERVAL || '2000';
+            this.WEB_SERVER_PORT = process.env.WEB_SERVER_PORT || '31000';
 
+            console.info("Successfully read environment variables from the runtime environment");
+            
         } catch (err) {
             console.error("Failed to read environment variables from the runtime environment! ", err);
         }
@@ -43,13 +49,32 @@ class Config {
     static printEnvs() {
         console.info("Printing environment variables......");
 
-        console.log("ENV: ", this.AMQP_PROVIDER);
-        console.log("ENV: ", this.AMQP_HOST);
-        console.log("ENV: ", this.AMQP_API_PORT);
-        console.log("ENV: ", this.AMQP_MESSAGE_PORT);
-        console.log("ENV: ", this.AMQP_USERNAME);
-        console.log("ENV: ", this.AMQP_DEFAULT_QUEUE_NAME);
-        console.log("ENV: ", this.AMQP_DEFAULT_VHOST);
+        console.log("AMQP_PROVIDER=", this.AMQP_PROVIDER);
+        console.log("AMQP_HOST=", this.AMQP_HOST);
+        console.log("AMQP_API_PORT=", this.AMQP_API_PORT);
+        console.log("AMQP_MESSAGE_PORT=", this.AMQP_MESSAGE_PORT);
+        console.log("AMQP_USERNAME=", this.AMQP_USERNAME);
+        console.log("AMQP_PASSWORD=", "****PASSWORD HIDDEN****");
+        console.log("AMQP_DEFAULT_QUEUE_NAME=", this.AMQP_DEFAULT_QUEUE_NAME);
+        console.log("AMQP_DEFAULT_VHOST=", this.AMQP_DEFAULT_VHOST);
+        console.log("AMQP_RETRY_INTERVAL=", this.AMQP_RETRY_INTERVAL);
+        console.log("WEB_SERVER_PORT=", this.WEB_SERVER_PORT);
+
+        console.info("Successfully printed environment variables");
+    }
+
+    //Dump environment variables for checking.
+    static logInitStart() {
+        console.log("*********************************************************************************");
+        console.log("**                              Initializating                                 **");
+        console.log("*********************************************************************************");
+    }
+
+    //Dump environment variables for checking.
+    static logInitEnd() {
+        console.log("*********************************************************************************");
+        console.log("**                          Initialization complete                            **");
+        console.log("*********************************************************************************");
     }
 }
 

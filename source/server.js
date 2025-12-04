@@ -5,7 +5,8 @@ const { getAllQueues, getQueue } = require("./amqp-stats");
 const config = require("./config");
 
 const server = express();
-const port = 3000;
+
+config.logInitStart();
 
 //Read env variables.
 config.readEnv();
@@ -14,14 +15,15 @@ config.readEnv();
 config.printEnvs();
 
 //Create object only after the variables have been loaded.
-const subscriber = new amqpSubscriber();
+const subscriber = new amqpSubscriber(config.AMQP_HOST, config.AMQP_MESSAGE_PORT, config.AMQP_USERNAME, config.AMQP_PASSWORD, config.AMQP_DEFAULT_QUEUE_NAME);
 
 //Trust the first proxy in the chain to get the IP address of the real client.
-//server.set('trust proxy', 1); 
+server.set('trust proxy', 1); 
 
 async function startSubscriber() {
   //Set up a connection.
   await subscriber.amqpSetup();
+  config.logInitEnd();
   await subscriber.subscribeAmqp();
 }
 
@@ -58,6 +60,6 @@ server.get("/api/queue/:name", async (req, res) => {
   }
 });
 
-server.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+server.listen(config.WEB_SERVER_PORT, () => {
+  console.info(`Server listening at http://localhost:${config.WEB_SERVER_PORT}`);
 });
