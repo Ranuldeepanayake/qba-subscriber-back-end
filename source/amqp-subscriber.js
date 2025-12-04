@@ -106,9 +106,9 @@ class AmqpSubscriber {
                   if (msg !== null) {
                     console.log("[x] Received AMQP message: ", msg.content.toString());
                     // Acknowledge message
-                    this.AMQP_CHANNEL.ack(msg);
+                    //this.AMQP_CHANNEL.ack(msg);
                   }
-              }, { noAck: false }
+              }, { noAck: true }
           );
 
       } catch (err) {
