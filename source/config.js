@@ -13,7 +13,8 @@ class Config {
 
     static AMQP_PROVIDER;
     static AMQP_HOST;
-    static AMQP_PORT;
+    static AMQP_API_PORT;
+    static AMQP_MESSAGE_PORT;
     static AMQP_USERNAME;
     static AMQP_PASSWORD;
     static AMQP_DEFAULT_QUEUE_NAME;
@@ -26,7 +27,8 @@ class Config {
 
             this.AMQP_PROVIDER = process.env.AMQP_PROVIDER || 'RabbitMQ';
             this.AMQP_HOST = process.env.AMQP_HOST_HOST || '192.168.56.128';
-            this.AMQP_PORT = process.env.AMQP_PORT_PORT || '15672';
+            this.AMQP_API_PORT = process.env.AMQP_API_PORT || '15672';
+            this.AMQP_MESSAGE_PORT = process.env.AMQP_MESSAGE_PORT || '5672';
             this.AMQP_USERNAME = process.env.AMQP_USERNAME || 'ranul';
             this.AMQP_PASSWORD = process.env.AMQP_PASSWORD || 'ranul@123';
             this.AMQP_DEFAULT_QUEUE_NAME = process.env.AMQP_DEFAULT_QUEUE_NAME || 'QBA_QUEUE_1';
@@ -43,7 +45,8 @@ class Config {
 
         console.log("ENV: ", this.AMQP_PROVIDER);
         console.log("ENV: ", this.AMQP_HOST);
-        console.log("ENV: ", this.AMQP_PORT);
+        console.log("ENV: ", this.AMQP_API_PORT);
+        console.log("ENV: ", this.AMQP_MESSAGE_PORT);
         console.log("ENV: ", this.AMQP_USERNAME);
         console.log("ENV: ", this.AMQP_DEFAULT_QUEUE_NAME);
         console.log("ENV: ", this.AMQP_DEFAULT_VHOST);

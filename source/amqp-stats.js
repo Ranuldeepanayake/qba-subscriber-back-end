@@ -5,7 +5,7 @@ const config = require("./config");
 
 //Get stats of all queues.
 async function getAllQueues() {
-  let amqpUrl = `http://${config.AMQP_HOST}:${config.AMQP_PORT}/api/queues`;
+  let amqpUrl = `http://${config.AMQP_HOST}:${config.AMQP_API_PORT}/api/queues`;
 
   try{
     console.info("Sending request to AMQP server ", amqpUrl);
@@ -23,7 +23,7 @@ async function getAllQueues() {
 // Get stats for a specific queue
 async function getQueue(queueName, vhost = config.AMQP_DEFAULT_VHOST) {
   try {
-    const amqpUrl = `http://${config.AMQP_HOST}:${config.AMQP_PORT}/api/queues/${encodeURIComponent(vhost)}/${queueName}`;
+    const amqpUrl = `http://${config.AMQP_HOST}:${config.AMQP_API_PORT}/api/queues/${encodeURIComponent(vhost)}/${queueName}`;
 
     console.info("Sending request to AMQP server ", amqpUrl);
     const result = await axios.get(amqpUrl, { auth: {username: config.AMQP_USERNAME, password: config.AMQP_PASSWORD }});

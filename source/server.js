@@ -1,6 +1,6 @@
 //Library imports.
 const express = require("express");
-const { printEnvs, amqpSetup } = require("./amqp");
+const amqpSubscriber = require("./amqp-subscriber");
 const { getAllQueues, getQueue } = require("./amqp-stats");
 const config = require("./config");
 
@@ -13,11 +13,18 @@ config.readEnv();
 //Print environment variables.
 config.printEnvs();
 
-//Set up a connection.
-//amqpSetup();
+//Create object only after the variables have been loaded.
+const subscriber = new amqpSubscriber();
 
 //Trust the first proxy in the chain to get the IP address of the real client.
 //server.set('trust proxy', 1); 
+
+async function startSubscriber() {
+  //Set up a connection.
+  await subscriber.amqpSetup();
+}
+
+startSubscriber();
 
 server.get("/", (req, res) => {
   res.send("API server is working!");
