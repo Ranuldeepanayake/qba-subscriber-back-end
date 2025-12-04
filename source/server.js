@@ -22,6 +22,7 @@ const subscriber = new amqpSubscriber();
 async function startSubscriber() {
   //Set up a connection.
   await subscriber.amqpSetup();
+  await subscriber.subscribeAmqp();
 }
 
 startSubscriber();

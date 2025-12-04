@@ -77,13 +77,12 @@ class AmqpSubscriber {
     await this.createAmqpQueue(this.AMQP_CHANNEL, config.AMQP_DEFAULT_QUEUE_NAME);
     //Wait for all phases to be successful to set the status flag.
     await this.amqpStatus();
-    await this.subscribeAmqp();
   }
 
   //Function which subscribes to the AMPQ server.
   async subscribeAmqp() {
     if (!this.AMQP_STATUS_OK) {
-      this.amqpSetup();
+      await this.amqpSetup();
     }
 
     console.info("Listening to queue ", config.AMQP_DEFAULT_QUEUE_NAME, " for messages......");
@@ -104,14 +103,12 @@ class AmqpSubscriber {
       } catch (err) {
           console.error("Error in subscribing to queue! ", err.message);
 
+          this.AMQP_STATUS_OK = false;
           if (this.AMQP_CHANNEL) await this.AMQP_CHANNEL.close();
           if (this.AMQP_CONNECTION) await this.AMQP_CONNECTION.close();
           console.log('AMQP resources released. Retrying to subscribe......');
-          await this.amqpSetup();
+          this.subscribeAmqp();
       }
-    //   } finally {
-          
-    // }
   }
 }
 
